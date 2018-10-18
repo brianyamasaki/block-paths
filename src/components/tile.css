@@ -1,0 +1,9 @@
+.tile {
+  position: absolute;
+  background: rgb(180, 180, 180);
+  margin: auto;
+}
+
+.tile.touched {
+  background: rgb(100,100,100);
+}
