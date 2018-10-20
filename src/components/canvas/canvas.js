@@ -3,6 +3,8 @@ import { Stage, Layer } from 'react-konva';
 import Blocks from './blocks';
 import { BOARD_PIXEL_WIDTH, BOARD_PIXEL_HEIGHT } from './constants';
 
+import './canvas.css';
+
 class Canvas extends Component {
   state = {
     width: BOARD_PIXEL_WIDTH,
@@ -21,19 +23,13 @@ class Canvas extends Component {
   }
 
   render() {
-    const styles = {
-      background: 'gray',
-      width: this.state.width,
-      height: this.state.height,
-      margin: 'auto'
-    };
 
     return (
       <Stage
         width={this.state.width} 
         height={this.state.width}
       >
-        <Layer style={styles}>
+        <Layer>
           <Blocks />
         </Layer>
       </Stage>
