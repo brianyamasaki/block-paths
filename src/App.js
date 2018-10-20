@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import Board from './components/board';
+// import Board from './components/board';
+import Canvas from './components/canvas/canvas';
 import logo from './logo.svg';
 import './App.css';
 
@@ -11,7 +12,7 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <Board />
+        <Canvas />
       </div>
     );
   }

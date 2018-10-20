@@ -72,6 +72,7 @@ class Board extends Component {
       tiles,
       selectedTiles: [ i ]
     })
+    e.preventDefault();
   }
 
   onTouchMove = e => {
@@ -97,10 +98,7 @@ class Board extends Component {
       tiles,
       selectedTiles
     })
-  }
-
-  onTouchEnd = i => {
-
+    e.preventDefault();
   }
 
   renderTile = (tile, i) => {
@@ -129,7 +127,6 @@ class Board extends Component {
         style={styles}
         onTouchStart={this.onTouchStart}
         onTouchMove={this.onTouchMove}
-        onTouchEnd={this.onTouchEnd}
       >
         {this.renderTiles()}
       </div>
