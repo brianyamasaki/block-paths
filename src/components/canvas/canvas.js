@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { Stage, Layer } from 'react-konva';
 import Blocks from './blocks';
+import { BOARD_PIXEL_WIDTH, BOARD_PIXEL_HEIGHT } from './constants';
 
 class Canvas extends Component {
   state = {
-    width: 500,
-    height: 500,
+    width: BOARD_PIXEL_WIDTH,
+    height: BOARD_PIXEL_HEIGHT,
     points: []
   };
 
@@ -18,41 +19,6 @@ class Canvas extends Component {
   
     return {x, y};
   }
-
-  onTouchStart = e => {
-    const touch = e.evt.touches[0];
-    const { x, y } = this.offsetXYFromParent(touch.clientX, touch.clientY, e.evt.target.parentElement)
-    const point = {
-      x,
-      y
-    };
-    e.evt.preventDefault();
-    this.setState({
-      points: [point]
-    });
-  }
-
-  onTouchMove = e => {
-    const touch = e.evt.changedTouches[0];
-    const { x, y } = this.offsetXYFromParent(touch.clientX, touch.clientY, e.evt.target.parentElement)
-    const point = {
-      x,
-      y
-    };
-    e.evt.preventDefault();
-
-    this.setState({
-      points: this.state.points.concat(point)
-    });
-  }
-
-  onTouchEnd = e => {
-    e.evt.preventDefault();
-    this.setState({
-      points: []
-    })
-  }
-
 
   render() {
     const styles = {

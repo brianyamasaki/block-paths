@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
 import { Rect, Group, Line } from 'react-konva';
-const TILE_HORIZONTAL_COUNT = 5;
-const TILE_VERTICAL_COUNT = 5;
-const TILE_PIXEL_WIDTH = 96;
-const TILE_PIXEL_HEIGHT = 96;
+import { 
+  BOARD_PIXEL_HEIGHT, 
+  BOARD_PIXEL_WIDTH,
+  BLOCK_COLOR,
+  SELECTED_COLOR
+} from './constants';
+
+const TILE_HORIZONTAL_COUNT = 8;
+const TILE_VERTICAL_COUNT = 8;
+const TILE_WIDTH_TOTAL = BOARD_PIXEL_WIDTH / TILE_HORIZONTAL_COUNT;
+const TILE_HEIGHT_TOTAL = BOARD_PIXEL_HEIGHT / TILE_VERTICAL_COUNT;
 const TILE_LEFT_MARGIN = 2;
 const TILE_TOP_MARGIN = 2;
+const TILE_PIXEL_WIDTH = TILE_WIDTH_TOTAL - (TILE_LEFT_MARGIN * 2);
+const TILE_PIXEL_HEIGHT = TILE_HEIGHT_TOTAL - (TILE_TOP_MARGIN * 2);
 
 class Blocks extends Component {
   state = {
@@ -18,8 +27,8 @@ class Blocks extends Component {
     for (let i = 0; i < TILE_HORIZONTAL_COUNT * TILE_VERTICAL_COUNT; i++) {
       blocks.push({
         iBlock: i,
-        x: ((i % TILE_HORIZONTAL_COUNT) * 100) + TILE_LEFT_MARGIN,
-        y: (Math.trunc(i / TILE_HORIZONTAL_COUNT) * 100) + TILE_TOP_MARGIN,
+        x: ((i % TILE_HORIZONTAL_COUNT) * TILE_WIDTH_TOTAL) + TILE_LEFT_MARGIN,
+        y: (Math.trunc(i / TILE_HORIZONTAL_COUNT) * TILE_HEIGHT_TOTAL) + TILE_TOP_MARGIN,
         width: TILE_PIXEL_WIDTH,
         height: TILE_PIXEL_HEIGHT
       });
@@ -28,6 +37,21 @@ class Blocks extends Component {
     this.setState({
       blocks
     });
+  }
+
+  onMouseDown = (e, i) => {
+    this.onTouchStart(e, i);
+    this.isMouseDown = true;
+  }
+
+  onMouseMove = (e, i) => {
+    if (this.isMouseDown) {
+      this.onTouchMove(e, i);
+    }
+  }
+
+  onMouseUp = () => {
+    this.isMouseDown = false;
   }
 
   onTouchStart = (e, i) => {
@@ -42,7 +66,6 @@ class Blocks extends Component {
       })
     }
     e.evt.preventDefault();
-    console.log('onTouchStart ' + i)
   }
 
   onTouchMove = (e, i) => {
@@ -73,7 +96,7 @@ class Blocks extends Component {
 
 
   renderBlock = (block, i) => {
-    const fill = this.state.selected.indexOf(i) !== -1 ? 'gray' : 'blue';
+    const fill = this.state.selected.indexOf(i) !== -1 ? SELECTED_COLOR : BLOCK_COLOR;
 
     return (
       <Rect  
@@ -84,6 +107,9 @@ class Blocks extends Component {
         fill={fill}
         onTouchStart={(e) => this.onTouchStart(e, i)}
         onTouchMove={(e) => this.onTouchMove(e, i)}
+        onMouseDown={(e) => this.onMouseDown(e, i)}
+        onMouseMove={(e) => this.onMouseMove(e, i)}
+        onMouseUp={this.onMouseUp}
         key={i}
       />
     );
@@ -99,7 +125,7 @@ class Blocks extends Component {
     });
     if (points.length < 1) 
       return;
-    return <Line points={points} stroke='gray' strokeWidth={TILE_PIXEL_HEIGHT} lineJoin='miter' />;
+    return <Line points={points} stroke={SELECTED_COLOR} strokeWidth={TILE_PIXEL_HEIGHT} lineJoin='miter' />;
   }
 
   render() {
