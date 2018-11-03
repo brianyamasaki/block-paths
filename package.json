@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "bootstrap": "4",
+    "bootstrap": "4.1.2",
     "konva": "^2.4.2",
     "node-sass": "^4.9.4",
     "react": "^16.4.2",
