@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { Rect, Group, Line } from 'react-konva';
+import { connect } from 'react-redux';
 import { 
   BOARD_PIXEL_HEIGHT, 
   BOARD_PIXEL_WIDTH,
   BLOCK_COLOR,
-  SELECTED_COLOR
+  SELECTED_COLOR,
+  WIN_COLOR
 } from './constants';
+import { TILE_HORIZONTAL_COUNT, TILE_VERTICAL_COUNT } from '../../constants';
+import { updatePath, wonPuzzle } from '../../modules/pathStore';
 
-const TILE_HORIZONTAL_COUNT = 8;
-const TILE_VERTICAL_COUNT = 8;
 const TILE_WIDTH_TOTAL = BOARD_PIXEL_WIDTH / TILE_HORIZONTAL_COUNT;
 const TILE_HEIGHT_TOTAL = BOARD_PIXEL_HEIGHT / TILE_VERTICAL_COUNT;
 const TILE_LEFT_MARGIN = 2;
@@ -19,7 +21,10 @@ const TILE_PIXEL_HEIGHT = TILE_HEIGHT_TOTAL - (TILE_TOP_MARGIN * 2);
 class Blocks extends Component {
   state = {
     blocks: [],
-    selected: []
+    selected: [],
+    skipBlocks: [],
+    nonSkippedBlocks: 0,
+    won: false
   };
 
   componentDidMount() {
@@ -35,8 +40,29 @@ class Blocks extends Component {
     }
 
     this.setState({
-      blocks
+      blocks,
+      nonSkippedBlocks: blocks.length,
     });
+  }
+
+  componentDidUpdate = (prevProps) => {
+    const { currentPath, skipBlocks, won } = this.props;
+    if (prevProps.currentPath !== currentPath) {
+      this.setState({
+        selected: currentPath
+      });
+    }
+    if (prevProps.skipBlocks !== skipBlocks) {
+      this.setState({
+        skipBlocks,
+        nonSkippedBlocks: skipBlocks.filter(show => !show).length
+      });
+    }
+    if (this.state.won !== won) {
+      this.setState({
+        won
+      });
+    }
   }
 
   onMouseDown = (e, i) => {
@@ -88,44 +114,74 @@ class Blocks extends Component {
       return;
     }
 
+    const won = selected.length === this.state.nonSkippedBlocks;
     this.setState({
-      selected
+      selected,
+      won
     });
+    if (won) {
+      this.props.wonPuzzle();
+    }
+    
     e.evt.preventDefault();
   }
 
+  onTouchEnd = (e) => {
+    e.evt.preventDefault();
+    this.props.updatePath(this.state.selected);
+  }
 
   renderBlock = (block, i) => {
-    const fill = this.state.selected.indexOf(i) !== -1 ? SELECTED_COLOR : BLOCK_COLOR;
+    let fill;
+    if (this.state.won) {
+      fill = WIN_COLOR;
+    } else if (this.state.selected.indexOf(i) !== -1) {
+      fill = SELECTED_COLOR;
+    } else {
+      fill = BLOCK_COLOR;
+    }
 
-    return (
-      <Rect  
-        x={block.x} 
-        y={block.y} 
-        width={block.width} 
-        height={block.height} 
-        fill={fill}
-        onTouchStart={(e) => this.onTouchStart(e, i)}
-        onTouchMove={(e) => this.onTouchMove(e, i)}
-        onMouseDown={(e) => this.onMouseDown(e, i)}
-        onMouseMove={(e) => this.onMouseMove(e, i)}
-        onMouseUp={this.onMouseUp}
-        key={i}
-      />
-    );
+    if (!this.state.skipBlocks[i]) {
+      return (
+        <Rect  
+          x={block.x} 
+          y={block.y} 
+          width={block.width} 
+          height={block.height} 
+          fill={fill}
+          onTouchStart={(e) => this.onTouchStart(e, i)}
+          onTouchMove={(e) => this.onTouchMove(e, i)}
+          onTouchEnd={(e) => this.onTouchEnd(e)}
+          onMouseDown={(e) => this.onMouseDown(e, i)}
+          onMouseMove={(e) => this.onMouseMove(e, i)}
+          onMouseUp={this.onMouseUp}
+          key={i}
+        />
+      );
+    }
   }
 
   renderSelection() {
     let points = [];
+    const blockHalfWidth = TILE_PIXEL_WIDTH / 2;
+    const blockHalfHeight = TILE_PIXEL_HEIGHT / 2;
     this.state.selected.forEach(iBlock => {
       const block = this.state.blocks[iBlock];
-      const x = block.x + (block.width / 2);
-      const y = block.y + (block.height / 2);
+      const x = block.x + blockHalfWidth;
+      const y = block.y + blockHalfHeight;
       points = points.concat(x, y);
     });
     if (points.length < 1) 
       return;
-    return <Line points={points} stroke={SELECTED_COLOR} strokeWidth={TILE_PIXEL_HEIGHT} lineJoin='miter' />;
+    const stroke = this.state.won ? WIN_COLOR : SELECTED_COLOR;
+    return (
+      <Line 
+        points={points} 
+        stroke={stroke} 
+        strokeWidth={TILE_PIXEL_HEIGHT} 
+        lineJoin='miter' 
+      />
+    );
   }
 
   render() {
@@ -138,4 +194,17 @@ class Blocks extends Component {
   }
 }
 
-export default Blocks;
+const mapStateToProps = state => {
+  const { puzzles } = state;
+  return {
+    paths: puzzles.paths,
+    currentPath: puzzles.currentPath,
+    skipBlocks: puzzles.skipBlocks,
+    won: puzzles.won
+  };
+}
+
+export default connect(mapStateToProps, {
+  updatePath,
+  wonPuzzle
+})(Blocks);

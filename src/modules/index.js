@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import path from './pathStore';
+import puzzles from './pathStore';
 
 export default combineReducers({
-  path
+  puzzles
 });

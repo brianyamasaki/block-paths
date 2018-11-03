@@ -1,0 +1,19 @@
+.cpanel {
+  padding: 1em 2em;
+}
+
+.buttonBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin: .5em 0;
+}
+
+.cpanel ol {
+  text-align: left;
+}
+
+li button {
+  margin-right: 5px;
+}
+
